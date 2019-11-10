@@ -6,13 +6,24 @@
   <title>Kehvarl's Elm App</title>
   <script type="text/javascript" src="build/Main.js"></script>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body { background-color: rgb(44, 44, 44); color:white;}
+    img {border: 1px solid white; margin: 5px;}
+    .large {width: 500px; float: right;}
+    .selected {margin: 0; border: 6px solid #60b5cc;}
+    .content {margin: 40px auto; width: 960px;}
+    #thumbnails {width: 440px; float:left;}
+    h1 {font-family: Verdana; color: 60b5cc;}
+  </style>
 </head>
 
 <body>
 </body>
 
-<script type="text/javascript">
-var app = Elm.PhotoGroove.init();
-</script>
+  <div id="app"></div>
+
+  <script type="text/javascript">
+  var app = Elm.PhotoGroove.init({node: document.getElementById("app")});
+  </script>
 
 </html>
