@@ -16,6 +16,17 @@ main =
 --MODEL
 
 
+type alias ImgUrl =
+    { url : String }
+
+
+type alias Model =
+    { photos : List ImgUrl
+    , selectedUrl : String
+    }
+
+
+initialModel : Model
 initialModel =
     { photos =
         [ { url = "1.jpeg" }
@@ -24,6 +35,23 @@ initialModel =
         ]
     , selectedUrl = "1.jpeg"
     }
+
+
+
+--UPDATE
+
+
+type Msg
+    = Selected String
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        Selected newUrl ->
+            ( { model | selectedUrl = newUrl }
+            , Cmd.none
+            )
 
 
 
