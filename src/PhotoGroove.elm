@@ -1,7 +1,9 @@
 module PhotoGroove exposing (main)
 
+import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 
 
 
@@ -9,7 +11,11 @@ import Html.Attributes exposing (..)
 
 
 main =
-    view initialModel
+    Browser.sandbox
+        { init = initialModel
+        , view = view
+        , update = update
+        }
 
 
 
@@ -45,13 +51,14 @@ type Msg
     = Selected String
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update :
+    Msg
+    -> Model
+    -> Model --( Model, Cmd Msg )
 update msg model =
     case msg of
         Selected newUrl ->
-            ( { model | selectedUrl = newUrl }
-            , Cmd.none
-            )
+            { model | selectedUrl = newUrl }
 
 
 
@@ -79,5 +86,6 @@ viewThumbnail selectedUrl thumb =
     img
         [ src (urlPrefix ++ thumb.url)
         , classList [ ( "selected", selectedUrl == thumb.url ) ]
+        , onClick (Selected thumb.url)
         ]
         []
