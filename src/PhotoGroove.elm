@@ -86,7 +86,7 @@ view model =
         , button
             [ onClick { description = "ClickedSurpriseMe", data = "" } ]
             [ text "Surprise Me" ]
-        , div [ id "thumb-nails" ]
+        , div [ id "thumbnails" ]
             (List.map (viewThumbnail model.selectedUrl) model.photos)
         , img
             [ class "large"
