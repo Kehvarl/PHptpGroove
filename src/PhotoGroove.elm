@@ -71,21 +71,23 @@ getPhotoUrl index =
 --UPDATE
 
 
-type alias Msg =
-    { description : String, data : String }
+type Msg
+    = ClickedPhoto String
+    | ClickedSize ThumbnailSize
+    | ClickedSurpriseMe
 
 
 update : Msg -> Model -> Model
 update msg model =
-    case msg.description of
-        "ClickedPhoto" ->
-            { model | selectedUrl = msg.data }
+    case msg of
+        ClickedPhoto data ->
+            { model | selectedUrl = data }
 
-        "ClickedSurpriseMe" ->
+        ClickedSize size ->
+            { model | chosenSize = size }
+
+        ClickedSurpriseMe ->
             { model | selectedUrl = "2.jpeg" }
-
-        _ ->
-            model
 
 
 
@@ -102,7 +104,7 @@ view model =
     div [ class "content" ]
         [ h1 [] [ text "Photo Groove" ]
         , button
-            [ onClick { description = "ClickedSurpriseMe", data = "" } ]
+            [ onClick ClickedSurpriseMe ]
             [ text "Surprise Me" ]
         , h3 [] [ text "Thumbnail Size:" ]
         , div [ id "choose-size" ]
@@ -143,6 +145,6 @@ viewThumbnail selectedUrl thumb =
     img
         [ src (urlPrefix ++ thumb.url)
         , classList [ ( "selected", selectedUrl == thumb.url ) ]
-        , onClick { description = "ClickedPhoto", data = thumb.url }
+        , onClick (ClickedPhoto thumb.url)
         ]
         []
