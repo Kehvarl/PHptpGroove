@@ -5,17 +5,20 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
+import Random
 
 
 
 --MAIN
 
 
+main : Program () Model Msg
 main =
-    Browser.sandbox
-        { init = initialModel
+    Browser.element
+        { init = \_ -> ( initialModel, Cmd.none )
         , view = view
         , update = update
+        , subscriptions = \_ -> Sub.none
         }
 
 
@@ -57,25 +60,54 @@ photoArray =
     Array.fromList initialModel.photos
 
 
+getPhotoUrl : Int -> String
+getPhotoUrl index =
+    case Array.get index photoArray of
+        Just photo ->
+            photo.url
+
+        Nothing ->
+            ""
+
+
+randomPicker : Random.Generator Int
+randomPicker =
+    Random.int 0 2
+
+
 
 --UPDATE
 
 
-type alias Msg =
-    { description : String, data : String }
+type Msg
+    = ClickedPhoto String
+    | ClickedSize ThumbnailSize
+    | ClickedSurpriseMe
+    | GotSelectedIndex Int
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg.description of
-        "ClickedPhoto" ->
-            { model | selectedUrl = msg.data }
+    case msg of
+        ClickedPhoto data ->
+            ( { model | selectedUrl = data }
+            , Cmd.none
+            )
 
-        "ClickedSurpriseMe" ->
-            { model | selectedUrl = "2.jpeg" }
+        ClickedSize size ->
+            ( { model | chosenSize = size }
+            , Cmd.none
+            )
 
-        _ ->
-            model
+        ClickedSurpriseMe ->
+            ( model
+            , Random.generate GotSelectedIndex randomPicker
+            )
+
+        GotSelectedIndex index ->
+            ( { model | selectedUrl = getPhotoUrl index }
+            , Cmd.none
+            )
 
 
 
@@ -92,7 +124,7 @@ view model =
     div [ class "content" ]
         [ h1 [] [ text "Photo Groove" ]
         , button
-            [ onClick { description = "ClickedSurpriseMe", data = "" } ]
+            [ onClick ClickedSurpriseMe ]
             [ text "Surprise Me" ]
         , h3 [] [ text "Thumbnail Size:" ]
         , div [ id "choose-size" ]
@@ -110,7 +142,7 @@ view model =
 viewSizeChooser : ThumbnailSize -> Html Msg
 viewSizeChooser size =
     label []
-        [ input [ type_ "radio", name "size" ] []
+        [ input [ type_ "radio", name "size", onClick (ClickedSize size) ] []
         , text (sizeToString size)
         ]
 
@@ -133,6 +165,6 @@ viewThumbnail selectedUrl thumb =
     img
         [ src (urlPrefix ++ thumb.url)
         , classList [ ( "selected", selectedUrl == thumb.url ) ]
-        , onClick { description = "ClickedPhoto", data = thumb.url }
+        , onClick (ClickedPhoto thumb.url)
         ]
         []
