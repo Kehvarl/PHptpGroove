@@ -83,6 +83,7 @@ type Msg
     = ClickedPhoto String
     | ClickedSize ThumbnailSize
     | ClickedSurpriseMe
+    | GotSelectedIndex Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -99,7 +100,12 @@ update msg model =
             )
 
         ClickedSurpriseMe ->
-            ( { model | selectedUrl = "2.jpeg" }
+            ( model
+            , Random.generate GotSelectedIndex randomPicker
+            )
+
+        GotSelectedIndex index ->
+            ( { model | selectedUrl = getPhotoUrl index }
             , Cmd.none
             )
 
