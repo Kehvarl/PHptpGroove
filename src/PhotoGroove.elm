@@ -5,6 +5,7 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
+import Random
 
 
 
@@ -65,6 +66,11 @@ getPhotoUrl index =
 
         Nothing ->
             ""
+
+
+randomPicker : Random.Generator Int
+randomPicker =
+    Random.Int 0 2
 
 
 
