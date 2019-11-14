@@ -122,7 +122,7 @@ view model =
 viewSizeChooser : ThumbnailSize -> Html Msg
 viewSizeChooser size =
     label []
-        [ input [ type_ "radio", name "size" ] []
+        [ input [ type_ "radio", name "size", onClick (ClickedSize size) ] []
         , text (sizeToString size)
         ]
 
