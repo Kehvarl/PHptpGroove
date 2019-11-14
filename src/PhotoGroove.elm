@@ -12,11 +12,13 @@ import Random
 --MAIN
 
 
+main : Program () Model Msg
 main =
-    Browser.sandbox
-        { init = initialModel
+    Browser.element
+        { init = \_ -> ( initialModel, Cmd.none )
         , view = view
         , update = update
+        , subscriptions = \_ -> Sub.none
         }
 
 
@@ -70,7 +72,7 @@ getPhotoUrl index =
 
 randomPicker : Random.Generator Int
 randomPicker =
-    Random.Int 0 2
+    Random.int 0 2
 
 
 
@@ -83,17 +85,23 @@ type Msg
     | ClickedSurpriseMe
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClickedPhoto data ->
-            { model | selectedUrl = data }
+            ( { model | selectedUrl = data }
+            , Cmd.none
+            )
 
         ClickedSize size ->
-            { model | chosenSize = size }
+            ( { model | chosenSize = size }
+            , Cmd.none
+            )
 
         ClickedSurpriseMe ->
-            { model | selectedUrl = "2.jpeg" }
+            ( { model | selectedUrl = "2.jpeg" }
+            , Cmd.none
+            )
 
 
 
