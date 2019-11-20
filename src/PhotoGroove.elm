@@ -1,4 +1,4 @@
-module PhotoGroove exposing (main)
+port module PhotoGroove exposing (main)
 
 import Array exposing (Array)
 import Browser
@@ -66,6 +66,12 @@ type alias Model =
     }
 
 
+type alias FilterOptions =
+    { url : String
+    , filters : List { name : String, amount : Float }
+    }
+
+
 initialModel : Model
 initialModel =
     { status = Loading
@@ -116,13 +122,39 @@ type Msg
     | SlidNoise Int
 
 
+port setFilters : FilterOptions -> Cmd msd
+
+
+applyFilters : Model -> ( Model, Cmd Msg )
+applyFilters model =
+    case model.status of
+        Loading ->
+            ( model, Cmd.none )
+
+        Loaded photos selectedUrl ->
+            let
+                filters =
+                    [ { name = "Hue", amount = toFloat model.hue / 11 }
+                    , { name = "Ripple", amount = toFloat model.ripple / 11 }
+                    , { name = "Noise", amount = toFloat model.noise / 11 }
+                    ]
+
+                url =
+                    urlPrefix ++ "large/" ++ selectedUrl
+            in
+            ( model
+            , setFilters { url = url, filters = filters }
+            )
+
+        Errored errorMessage ->
+            ( model, Cmd.none )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClickedPhoto url ->
-            ( { model | status = selectUrl url model.status }
-            , Cmd.none
-            )
+            applyFilters { model | status = selectUrl url model.status }
 
         ClickedSize size ->
             ( { model | chosenSize = size }
@@ -147,21 +179,19 @@ update msg model =
                     ( model, Cmd.none )
 
         GotRandomPhoto photo ->
-            ( { model | status = selectUrl photo.url model.status }
-            , Cmd.none
-            )
+            applyFilters { model | status = selectUrl photo.url model.status }
 
         GotPhotos (Ok photos) ->
-            case photos of
-                first :: rest ->
-                    ( { model | status = Loaded photos first.url }
-                    , Cmd.none
-                    )
+            applyFilters
+                { model
+                    | status =
+                        case List.head photos of
+                            Just photo ->
+                                Loaded photos photo.url
 
-                [] ->
-                    ( { model | status = Errored "0 photos found" }
-                    , Cmd.none
-                    )
+                            Nothing ->
+                                Loaded [] ""
+                }
 
         GotPhotos (Err _) ->
             ( { model | status = Errored "HTTP Error" }
@@ -169,19 +199,13 @@ update msg model =
             )
 
         SlidHue newHue ->
-            ( { model | hue = newHue }
-            , Cmd.none
-            )
+            applyFilters { model | hue = newHue }
 
         SlidRipple newRipple ->
-            ( { model | ripple = newRipple }
-            , Cmd.none
-            )
+            applyFilters { model | ripple = newRipple }
 
         SlidNoise newNoise ->
-            ( { model | noise = newNoise }
-            , Cmd.none
-            )
+            applyFilters { model | noise = newNoise }
 
 
 
@@ -224,9 +248,9 @@ viewLoaded photos selectedUrl model =
         (List.map viewSizeChooser [ Small, Medium, Large ])
     , div [ id "thumbnails", class (sizeToString model.chosenSize) ]
         (List.map (viewThumbnail selectedUrl) photos)
-    , img
-        [ class "large"
-        , src (urlPrefix ++ "large/" ++ selectedUrl)
+    , canvas
+        [ id "main-canvas"
+        , class "large"
         ]
         []
     ]

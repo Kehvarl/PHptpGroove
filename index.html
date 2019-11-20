@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Kehvarl's Elm App</title>
+  <script src="http://elm-in-action.com/pasta.js"></script>
   <script type="text/javascript" src="build/Main.js"></script>
 
   <link rel="stylesheet" href="http://elm-in-action.com/styles.css">
@@ -46,7 +47,12 @@
   <div id="app"></div>
 
   <script type="text/javascript">
-  var app = Elm.PhotoGroove.init({node: document.getElementById("app")});
+    var app = Elm.PhotoGroove.init({node: document.getElementById("app")});
+    app.ports.setFilters.subscribe(function(options) {
+      requestAnimationFrame(function() {
+        Pasta.apply(document.getElementById("main-canvas"), options)
+      });
+    });
   </script>
 
 </html>
