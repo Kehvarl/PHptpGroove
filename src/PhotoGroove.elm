@@ -199,19 +199,13 @@ update msg model =
             )
 
         SlidHue newHue ->
-            ( { model | hue = newHue }
-            , Cmd.none
-            )
+            applyFilters { model | hue = newHue }
 
         SlidRipple newRipple ->
-            ( { model | ripple = newRipple }
-            , Cmd.none
-            )
+            applyFilters { model | ripple = newRipple }
 
         SlidNoise newNoise ->
-            ( { model | noise = newNoise }
-            , Cmd.none
-            )
+            applyFilters { model | noise = newNoise }
 
 
 
