@@ -182,16 +182,16 @@ update msg model =
             applyFilters { model | status = selectUrl photo.url model.status }
 
         GotPhotos (Ok photos) ->
-            case photos of
-                first :: rest ->
-                    ( { model | status = Loaded photos first.url }
-                    , Cmd.none
-                    )
+            applyFilters
+                { model
+                    | status =
+                        case List.head photos of
+                            Just photo ->
+                                Loaded photos photo.url
 
-                [] ->
-                    ( { model | status = Errored "0 photos found" }
-                    , Cmd.none
-                    )
+                            Nothing ->
+                                Loaded [] ""
+                }
 
         GotPhotos (Err _) ->
             ( { model | status = Errored "HTTP Error" }
