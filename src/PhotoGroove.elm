@@ -254,9 +254,9 @@ viewLoaded photos selectedUrl model =
         (List.map viewSizeChooser [ Small, Medium, Large ])
     , div [ id "thumbnails", class (sizeToString model.chosenSize) ]
         (List.map (viewThumbnail selectedUrl) photos)
-    , img
-        [ class "large"
-        , src (urlPrefix ++ "large/" ++ selectedUrl)
+    , canvas
+        [ id "main-canvas"
+        , class "large"
         ]
         []
     ]
