@@ -59,6 +59,7 @@ type Status
 
 type alias Model =
     { status : Status
+    , activity : String
     , chosenSize : ThumbnailSize
     , hue : Int
     , ripple : Int
@@ -75,6 +76,7 @@ type alias FilterOptions =
 initialModel : Model
 initialModel =
     { status = Loading
+    , activity = ""
     , chosenSize = Small
     , hue = 5
     , ripple = 5
@@ -117,6 +119,7 @@ type Msg
     | ClickedSurpriseMe
     | GotRandomPhoto Photo
     | GotPhotos (Result Http.Error (List Photo))
+    | GotActivity String
     | SlidHue Int
     | SlidRipple Int
     | SlidNoise Int
@@ -198,6 +201,11 @@ update msg model =
             , Cmd.none
             )
 
+        GotActivity activity ->
+            ( { model | activity = activity }
+            , Cmd.none
+            )
+
         SlidHue newHue ->
             applyFilters { model | hue = newHue }
 
@@ -238,6 +246,8 @@ viewLoaded photos selectedUrl model =
     , button
         [ onClick ClickedSurpriseMe ]
         [ text "Surprise Me" ]
+    , div [ class "activity" ]
+        [ text model.activity ]
     , div [ class "filters" ]
         [ viewFilter SlidHue "Hue" model.hue
         , viewFilter SlidRipple "Ripple" model.ripple
