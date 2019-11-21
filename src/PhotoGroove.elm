@@ -16,13 +16,13 @@ import Random
 --MAIN
 
 
-main : Program () Model Msg
+main : Program Float Model Msg
 main =
     Browser.element
-        { init = \_ -> ( initialModel, initialCmd )
+        { init = init
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }
 
 
@@ -59,6 +59,7 @@ type Status
 
 type alias Model =
     { status : Status
+    , activity : String
     , chosenSize : ThumbnailSize
     , hue : Int
     , ripple : Int
@@ -75,6 +76,7 @@ type alias FilterOptions =
 initialModel : Model
 initialModel =
     { status = Loading
+    , activity = ""
     , chosenSize = Small
     , hue = 5
     , ripple = 5
@@ -99,6 +101,17 @@ selectUrl url status =
 --INIT
 
 
+init : Float -> ( Model, Cmd Msg )
+init flags =
+    let
+        activity =
+            "Initializing Pasta v" ++ String.fromFloat flags
+    in
+    ( { initialModel | activity = activity }
+    , initialCmd
+    )
+
+
 initialCmd : Cmd Msg
 initialCmd =
     Http.get
@@ -117,12 +130,16 @@ type Msg
     | ClickedSurpriseMe
     | GotRandomPhoto Photo
     | GotPhotos (Result Http.Error (List Photo))
+    | GotActivity String
     | SlidHue Int
     | SlidRipple Int
     | SlidNoise Int
 
 
 port setFilters : FilterOptions -> Cmd msd
+
+
+port activityChanges : (String -> msg) -> Sub msg
 
 
 applyFilters : Model -> ( Model, Cmd Msg )
@@ -198,6 +215,11 @@ update msg model =
             , Cmd.none
             )
 
+        GotActivity activity ->
+            ( { model | activity = activity }
+            , Cmd.none
+            )
+
         SlidHue newHue ->
             applyFilters { model | hue = newHue }
 
@@ -206,6 +228,15 @@ update msg model =
 
         SlidNoise newNoise ->
             applyFilters { model | noise = newNoise }
+
+
+
+--SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    activityChanges GotActivity
 
 
 
@@ -238,6 +269,8 @@ viewLoaded photos selectedUrl model =
     , button
         [ onClick ClickedSurpriseMe ]
         [ text "Surprise Me" ]
+    , div [ class "activity" ]
+        [ text model.activity ]
     , div [ class "filters" ]
         [ viewFilter SlidHue "Hue" model.hue
         , viewFilter SlidRipple "Ripple" model.ripple
