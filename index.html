@@ -47,7 +47,8 @@
   <div id="app"></div>
 </body>
   <script type="text/javascript">
-    var app = Elm.PhotoGroove.init({node: document.getElementById("app")});
+    var app = Elm.PhotoGroove.init({node: document.getElementById("app"),
+                                    flags: Pasta.version});
     app.ports.setFilters.subscribe(function(options) {
       requestAnimationFrame(function() {
         Pasta.apply(document.getElementById("main-canvas"), options)
