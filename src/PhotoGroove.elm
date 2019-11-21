@@ -22,7 +22,7 @@ main =
         { init = \_ -> ( initialModel, initialCmd )
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }
 
 
@@ -128,6 +128,9 @@ type Msg
 port setFilters : FilterOptions -> Cmd msd
 
 
+port activityChanges : (String -> msg) -> Sub msg
+
+
 applyFilters : Model -> ( Model, Cmd Msg )
 applyFilters model =
     case model.status of
@@ -214,6 +217,15 @@ update msg model =
 
         SlidNoise newNoise ->
             applyFilters { model | noise = newNoise }
+
+
+
+--SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    activityChanges GotActivity
 
 
 
